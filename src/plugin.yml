@@ -1,0 +1,11 @@
+name: RRPGCombat
+version: 0.0.1
+authors: [ShawnClake, QuinnBast]
+main: com.openrubicon.combat.RRPGCombat
+depend: [RRPGCore, RRPGItems]
+database: true
+website: https://github.com/OpenRubiconProject
+commands:
+      rrpg-combat:
+               description: Spits out the current status of Rubicon Combat and its versions
+               usage: /rrpg-combat
