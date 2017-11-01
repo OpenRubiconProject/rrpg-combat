@@ -1,5 +1,6 @@
 package com.openrubicon.combat.events.attacks;
 
+import com.openrubicon.combat.classes.attacks.Attack;
 import com.openrubicon.core.api.events.Event;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Cancellable;
@@ -9,15 +10,18 @@ abstract public class AttackEvent extends Event implements Cancellable {
     private LivingEntity damager;
     private LivingEntity damagee;
 
-    private double damage;
+    private double rawDamage;
 
-    private boolean blocked = false;
-    private boolean cancelled = true;
+    private boolean crit = false;
+
+    private boolean cancelled = false;
+
+    private Attack attack;
 
     public AttackEvent(LivingEntity damager, LivingEntity damagee, double damage) {
         this.damager = damager;
         this.damagee = damagee;
-        this.damage = damage;
+        this.rawDamage = damage;
     }
 
     public LivingEntity getDamager() {
@@ -28,20 +32,16 @@ abstract public class AttackEvent extends Event implements Cancellable {
         return damagee;
     }
 
-    public double getDamage() {
-        return damage;
+    protected double getRawDamage() {
+        return rawDamage;
     }
 
-    public boolean isBlocked() {
-        return blocked;
+    public boolean isCrit() {
+        return crit;
     }
 
-    public void setDamage(double damage) {
-        this.damage = damage;
-    }
-
-    public void setBlocked(boolean blocked) {
-        this.blocked = blocked;
+    public void setCrit(boolean crit) {
+        this.crit = crit;
     }
 
     @Override
@@ -52,5 +52,23 @@ abstract public class AttackEvent extends Event implements Cancellable {
     @Override
     public void setCancelled(boolean cancelled) {
         this.cancelled = cancelled;
+    }
+
+    protected void setAttack(Attack attack) {
+        this.attack = attack;
+    }
+
+    public Attack getAttack() {
+        return attack;
+    }
+
+    public void prepareSimulation()
+    {
+        this.getAttack().prepareSimulatulation();
+    }
+
+    public void simulate()
+    {
+        this.attack.simulate();
     }
 }

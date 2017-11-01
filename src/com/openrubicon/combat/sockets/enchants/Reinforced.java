@@ -1,6 +1,6 @@
 package com.openrubicon.combat.sockets.enchants;
 
-import com.openrubicon.combat.events.attacks.AttackEvent;
+import com.openrubicon.combat.events.PrepareDefensePointsEvent;
 import com.openrubicon.combat.sockets.CombatSocket;
 import com.openrubicon.core.api.inventory.entities.enums.EntityInventorySlotType;
 import com.openrubicon.core.helpers.Helpers;
@@ -71,7 +71,7 @@ public class Reinforced extends CombatSocket {
     }
 
     @Override
-    public void onAttack(AttackEvent e, UniqueItem item, EntityInventorySlotType slot) {
-
+    public void onPrepareDefensePoints(PrepareDefensePointsEvent e, UniqueItem item, EntityInventorySlotType slot) {
+        e.setDefensePoints(e.getDefensePoints() + this.getArmor());
     }
 }

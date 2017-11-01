@@ -1,12 +1,14 @@
 package com.openrubicon.combat;
 
 import com.openrubicon.combat.events.EventListener;
+import com.openrubicon.combat.scoreboard.CombatChance;
 import com.openrubicon.combat.sockets.effects.Jarvis;
 import com.openrubicon.combat.sockets.enchants.Reinforced;
 import com.openrubicon.combat.sockets.events.SocketEventListener;
 import com.openrubicon.core.RRPGCore;
 import com.openrubicon.core.api.command.Command;
 import com.openrubicon.core.api.configuration.ConfigurationProperty;
+import com.openrubicon.core.api.scoreboard.ScoreboardSectionService;
 import com.openrubicon.core.api.server.players.interfaces.PlayerData;
 import com.openrubicon.core.interfaces.Module;
 import com.openrubicon.items.classes.sockets.SocketProvider;
@@ -69,6 +71,8 @@ public class RRPGCombat extends JavaPlugin implements Module {
         RRPGCore.services.getSerivce(SocketProvider.class).add(new Jarvis());
         RRPGCore.services.getSerivce(SocketProvider.class).add(new Reinforced());
         getLogger().info("Sockets Injected.");
+
+        RRPGCore.services.getSerivce(ScoreboardSectionService.class).getScoreboardSections().add(new CombatChance());
     }
 
     @Override
