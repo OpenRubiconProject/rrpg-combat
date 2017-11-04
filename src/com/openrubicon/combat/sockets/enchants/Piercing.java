@@ -1,6 +1,6 @@
 package com.openrubicon.combat.sockets.enchants;
 
-import com.openrubicon.combat.events.PrepareDefensePointsEvent;
+import com.openrubicon.combat.events.PrepareAttackPointsEvent;
 import com.openrubicon.combat.sockets.CombatSocket;
 import com.openrubicon.core.api.inventory.entities.enums.EntityInventorySlotType;
 import com.openrubicon.core.helpers.Helpers;
@@ -10,27 +10,27 @@ import org.bukkit.Material;
 
 import java.util.HashSet;
 
-public class Reinforced extends CombatSocket {
-    private int armor = 1;
+public class Piercing extends CombatSocket {
+    private int pierce = 1;
 
     @Override
     public String getKey() {
-        return "reinforced";
+        return "piercing";
     }
 
     @Override
     public HashSet<Material> getMaterials() {
-        return MaterialGroups.ARMOR;
+        return MaterialGroups.TOOLS;
     }
 
     @Override
     public String getName() {
-        return "Reinforced";
+        return "Piercing";
     }
 
     @Override
     public String getDescription() {
-        return "Increases your chance of blocking an attack";
+        return "Increases your attack points";
     }
 
     @Override
@@ -39,12 +39,12 @@ public class Reinforced extends CombatSocket {
         super.generate();
 
         double min = 0;
-        double max = (this.getItemSpecs().getPower() / 2) * this.getItemSpecs().getRarity();
+        double max = (this.getItemSpecs().getPower()) * (this.getItemSpecs().getRarity() / 2);
 
-        this.armor = (int) Helpers.scale(Helpers.randomDouble(min, max), min, 61, 1, 10);
+        this.pierce = (int) Helpers.scale(Helpers.randomDouble(min, max), min, 61, 1, 30);
 
-        if(this.armor < 1)
-            this.armor = 1;
+        if(this.pierce < 1)
+            this.pierce = 1;
 
         return true;
     }
@@ -52,7 +52,7 @@ public class Reinforced extends CombatSocket {
     @Override
     public boolean save() {
 
-        this.getSocketProperties().addInteger("armor", this.armor);
+        this.getSocketProperties().addInteger("pierce", this.pierce);
         return super.save();
     }
 
@@ -60,18 +60,19 @@ public class Reinforced extends CombatSocket {
     public boolean load() {
         super.load();
 
-        this.armor = this.getSocketProperties().getInteger("armor");
+        this.pierce = this.getSocketProperties().getInteger("pierce");
 
         return true;
     }
 
 
-    public int getArmor() {
-        return armor;
+    public int getPierce() {
+        return pierce;
     }
 
     @Override
-    public void onPrepareDefensePoints(PrepareDefensePointsEvent e, UniqueItem item, EntityInventorySlotType slot) {
-        e.setDefensePoints(e.getDefensePoints() + this.getArmor());
+    public void onPrepareAttackPoints(PrepareAttackPointsEvent e, UniqueItem item, EntityInventorySlotType slot) {
+
+        e.setAttackPoints(e.getAttackPoints() + this.getPierce());
     }
 }

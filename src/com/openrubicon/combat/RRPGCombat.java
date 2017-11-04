@@ -1,9 +1,13 @@
 package com.openrubicon.combat;
 
+import com.openrubicon.combat.commands.CombatLog;
 import com.openrubicon.combat.events.EventListener;
+import com.openrubicon.combat.scoreboard.ChallengeStatus;
 import com.openrubicon.combat.scoreboard.CombatChance;
+import com.openrubicon.combat.sockets.abilities.Challenge;
+import com.openrubicon.combat.sockets.effects.Evasion;
 import com.openrubicon.combat.sockets.effects.Jarvis;
-import com.openrubicon.combat.sockets.enchants.Reinforced;
+import com.openrubicon.combat.sockets.enchants.*;
 import com.openrubicon.combat.sockets.events.SocketEventListener;
 import com.openrubicon.core.RRPGCore;
 import com.openrubicon.core.api.command.Command;
@@ -39,7 +43,9 @@ public class RRPGCombat extends JavaPlugin implements Module {
 
     @Override
     public ArrayList<Command> getCommands() {
-        return new ArrayList<>();
+        ArrayList<Command> commands = new ArrayList<>();
+        commands.add(new CombatLog());
+        return commands;
     }
 
     @Override
@@ -69,10 +75,17 @@ public class RRPGCombat extends JavaPlugin implements Module {
 
         getLogger().info("Injecting Sockets..");
         RRPGCore.services.getSerivce(SocketProvider.class).add(new Jarvis());
+        RRPGCore.services.getSerivce(SocketProvider.class).add(new Evasion());
         RRPGCore.services.getSerivce(SocketProvider.class).add(new Reinforced());
+        RRPGCore.services.getSerivce(SocketProvider.class).add(new Challenge());
+        RRPGCore.services.getSerivce(SocketProvider.class).add(new Piercing());
+        RRPGCore.services.getSerivce(SocketProvider.class).add(new Strength());
+        RRPGCore.services.getSerivce(SocketProvider.class).add(new Thickness());
+        RRPGCore.services.getSerivce(SocketProvider.class).add(new Thornmail());
         getLogger().info("Sockets Injected.");
 
         RRPGCore.services.getSerivce(ScoreboardSectionService.class).getScoreboardSections().add(new CombatChance());
+        RRPGCore.services.getSerivce(ScoreboardSectionService.class).getScoreboardSections().add(new ChallengeStatus());
     }
 
     @Override

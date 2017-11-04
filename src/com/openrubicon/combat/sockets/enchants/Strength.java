@@ -1,6 +1,6 @@
 package com.openrubicon.combat.sockets.enchants;
 
-import com.openrubicon.combat.events.PrepareDefensePointsEvent;
+import com.openrubicon.combat.events.attacks.PrepareAttackApplicationEvent;
 import com.openrubicon.combat.sockets.CombatSocket;
 import com.openrubicon.core.api.inventory.entities.enums.EntityInventorySlotType;
 import com.openrubicon.core.helpers.Helpers;
@@ -10,27 +10,27 @@ import org.bukkit.Material;
 
 import java.util.HashSet;
 
-public class Reinforced extends CombatSocket {
-    private int armor = 1;
+public class Strength extends CombatSocket {
+    private double multiplier = 1.1;
 
     @Override
     public String getKey() {
-        return "reinforced";
+        return "strength";
     }
 
     @Override
     public HashSet<Material> getMaterials() {
-        return MaterialGroups.ARMOR;
+        return MaterialGroups.SWORDS;
     }
 
     @Override
     public String getName() {
-        return "Reinforced";
+        return "Strength";
     }
 
     @Override
     public String getDescription() {
-        return "Increases your chance of blocking an attack";
+        return "Increases your damage by a predetermined multiplier";
     }
 
     @Override
@@ -41,10 +41,7 @@ public class Reinforced extends CombatSocket {
         double min = 0;
         double max = (this.getItemSpecs().getPower() / 2) * this.getItemSpecs().getRarity();
 
-        this.armor = (int) Helpers.scale(Helpers.randomDouble(min, max), min, 61, 1, 10);
-
-        if(this.armor < 1)
-            this.armor = 1;
+        this.multiplier = Helpers.scale(Helpers.randomDouble(min, max), min, max, 1.1, 2);
 
         return true;
     }
@@ -52,7 +49,7 @@ public class Reinforced extends CombatSocket {
     @Override
     public boolean save() {
 
-        this.getSocketProperties().addInteger("armor", this.armor);
+        this.getSocketProperties().addDouble("multiplier", this.multiplier);
         return super.save();
     }
 
@@ -60,18 +57,21 @@ public class Reinforced extends CombatSocket {
     public boolean load() {
         super.load();
 
-        this.armor = this.getSocketProperties().getInteger("armor");
+        this.multiplier = this.getSocketProperties().getDouble("multiplier");
 
         return true;
     }
 
 
-    public int getArmor() {
-        return armor;
+    public double getMultiplier() {
+        return multiplier;
     }
 
     @Override
-    public void onPrepareDefensePoints(PrepareDefensePointsEvent e, UniqueItem item, EntityInventorySlotType slot) {
-        e.setDefensePoints(e.getDefensePoints() + this.getArmor());
+    public void onPrepareAttackApplication(PrepareAttackApplicationEvent e, UniqueItem item, EntityInventorySlotType slot) {
+        if(item.getWhoCurrentlyHas() != e.getAttackEvent().getDamager())
+            return;
+
+        e.getAttackEvent().getAttack().setFinalDamage(e.getAttackEvent().getAttack().getFinalDamage() * this.getMultiplier());
     }
 }
