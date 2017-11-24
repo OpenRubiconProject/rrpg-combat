@@ -1,6 +1,5 @@
 package com.openrubicon.combat.sockets.enchants;
 
-import com.openrubicon.combat.events.attacks.PostAttackEvent;
 import com.openrubicon.combat.events.attacks.PrepareAttackApplicationEvent;
 import com.openrubicon.combat.sockets.CombatSocket;
 import com.openrubicon.core.api.inventory.entities.enums.EntityInventorySlotType;
@@ -74,6 +73,9 @@ public class Thickness extends CombatSocket {
     @Override
     public void onPrepareAttackApplication(PrepareAttackApplicationEvent e, UniqueItem item, EntityInventorySlotType slot) {
         if(item.getWhoCurrentlyHas() != e.getAttackEvent().getDamagee())
+            return;
+
+        if(slot == EntityInventorySlotType.MAINHAND || slot == EntityInventorySlotType.OFFHAND)
             return;
 
         e.getAttackEvent().getAttack().setFinalDamage(e.getAttackEvent().getAttack().getFinalDamage() / this.getMultiplier());

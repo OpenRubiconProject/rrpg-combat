@@ -137,13 +137,13 @@ abstract public class Attack implements Metable, Observeable, Actionbarable {
 
         ItemStack i = entityEquipment.getItemInMainHand();
 
-        int total = ItemCombatConstants.getAttackLevel(i) * 7;
+        int total = (ItemCombatConstants.getAttackLevel(i) * 5);
         total -= this.getScaledWeaponDebuff(i);
 
         if(total < 0)
             total = 0;
 
-        double modifier = 1 / 12;
+        double modifier = 0.083;
 
         UniqueItem item = new UniqueItem(i);
         if(item.isValid() && item.isSpecialItem())
@@ -152,6 +152,9 @@ abstract public class Attack implements Metable, Observeable, Actionbarable {
         }
 
         total *= modifier;
+
+        if(total < 1)
+            total = 1;
 
         this.attackPoints = total;
 

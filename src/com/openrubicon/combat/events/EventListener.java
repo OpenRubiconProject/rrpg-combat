@@ -1,9 +1,15 @@
 package com.openrubicon.combat.events;
 
+import com.openrubicon.combat.classes.drops.LivingEntityDrops;
 import com.openrubicon.combat.classes.log.CombatLogManager;
 import com.openrubicon.combat.classes.log.CombatLogMessage;
 import com.openrubicon.combat.classes.log.LivingEntityCombatLog;
 import com.openrubicon.combat.events.attacks.*;
+import com.openrubicon.combat.server.playerdata.GodMode;
+import com.openrubicon.core.RRPGCore;
+import com.openrubicon.core.api.actionbar.ActionBarManager;
+import com.openrubicon.core.api.actionbar.ActionBarMessage;
+import com.openrubicon.core.api.enums.Priority;
 import com.openrubicon.core.helpers.Constants;
 import com.openrubicon.core.helpers.Helpers;
 import com.openrubicon.core.helpers.MaterialGroups;
@@ -36,32 +42,62 @@ public class EventListener implements Listener {
 
         if(e.getDamager() instanceof LivingEntity && e.getEntity() instanceof LivingEntity)
         {
+            boolean cancelled = false;
+
             AttackEvent attackEvent = null;
 
-            if(e.getCause() == EntityDamageEvent.DamageCause.ENTITY_SWEEP_ATTACK)
+            Durability durability = new Durability(((LivingEntity)e.getDamager()).getEquipment().getItemInMainHand());
+
+            if(e.getEntity() instanceof Player)
             {
-                attackEvent = new SweepAttackEvent((LivingEntity)e.getDamager(), (LivingEntity)e.getEntity(), e.getDamage());
+                Player player = (Player)e.getEntity();
+
+                if(RRPGCore.players.getPlayerData(player, GodMode.class).isGod())
+                {
+                    cancelled = true;
+                    if(e.getDamager() instanceof Player) {
+                        ActionBarMessage actionBarMessage = new ActionBarMessage(Constants.YELLOW + e.getEntity().getName() + " is in God Mode.", Priority.HIGH, 20);
+                        ActionBarManager.interrupt((Player) e.getDamager(), actionBarMessage);
+                    }
+                }
+
             }
 
-            if(e.getCause() == EntityDamageEvent.DamageCause.ENTITY_ATTACK)
+            UniqueItem item = new UniqueItem(durability.getItem());
+            if(!cancelled && item.isSpecialItem() && item.isValid() && item.isRightItemType() && !durability.hasDurability(1))
             {
                 if(e.getDamager() instanceof Player)
                 {
-                    Player player = (Player)e.getDamager();
+                    ActionBarMessage actionBarMessage = new ActionBarMessage(Constants.RED + Constants.BOLD + "Your Tool Doesn't Have Enough Durability", Priority.HIGH, 40);
+                    ActionBarManager.interrupt((Player)e.getDamager(), actionBarMessage);
+                }
+            } else {
+                if(e.getCause() == EntityDamageEvent.DamageCause.ENTITY_SWEEP_ATTACK)
+                {
+                    attackEvent = new SweepAttackEvent((LivingEntity)e.getDamager(), (LivingEntity)e.getEntity(), e.getDamage());
+                }
 
-                    if(player.isSprinting())
+                if(e.getCause() == EntityDamageEvent.DamageCause.ENTITY_ATTACK)
+                {
+                    if(e.getDamager() instanceof Player)
                     {
-                        attackEvent = new ChargeAttackEvent((LivingEntity)e.getDamager(), (LivingEntity)e.getEntity(), e.getDamage());
-                    } else if (player.isSneaking())
-                    {
-                        attackEvent = new ChannelAttackEvent((LivingEntity)e.getDamager(), (LivingEntity)e.getEntity(), e.getDamage());
+                        Player player = (Player)e.getDamager();
+
+                        if(player.isSprinting())
+                        {
+                            attackEvent = new ChargeAttackEvent((LivingEntity)e.getDamager(), (LivingEntity)e.getEntity(), e.getDamage());
+                        } else if (player.isSneaking())
+                        {
+                            attackEvent = new ChannelAttackEvent((LivingEntity)e.getDamager(), (LivingEntity)e.getEntity(), e.getDamage());
+                        } else {
+                            attackEvent = new BasicAttackEvent((LivingEntity)e.getDamager(), (LivingEntity)e.getEntity(), e.getDamage());
+                        }
                     } else {
                         attackEvent = new BasicAttackEvent((LivingEntity)e.getDamager(), (LivingEntity)e.getEntity(), e.getDamage());
                     }
-                } else {
-                    attackEvent = new BasicAttackEvent((LivingEntity)e.getDamager(), (LivingEntity)e.getEntity(), e.getDamage());
                 }
             }
+
 
             if(attackEvent != null && e.getDamager() instanceof Player)
             {
@@ -71,7 +107,6 @@ public class EventListener implements Listener {
                     attackEvent.setCrit(true);
                 }
             }
-
 
             if(attackEvent != null)
             {
@@ -107,105 +142,32 @@ public class EventListener implements Listener {
 
             }
 
+            if(cancelled)
+                e.setCancelled(true);
+
         }
     }
 
     @EventHandler
     public void onEntityDeath(EntityDeathEvent e) {
-        int xp = 0;
 
-        int max = (11 + 11 + 11) * 5;
-
-        List<ItemStack> drops = new ArrayList<>();
-
-        LivingEntity entity = e.getEntity();
-
-        UniqueItem mainhand = new UniqueItem(entity.getEquipment().getItemInMainHand());
-        UniqueItem helmet = new UniqueItem(entity.getEquipment().getHelmet());
-        UniqueItem chestplate = new UniqueItem(entity.getEquipment().getChestplate());
-        UniqueItem leggings = new UniqueItem(entity.getEquipment().getLeggings());
-        UniqueItem boots = new UniqueItem(entity.getEquipment().getBoots());
-
-        if (mainhand.isSpecialItem() && mainhand.isValid())
+        if(!(e.getEntity() instanceof Player))
         {
-            xp += mainhand.getItemSpecs().getPower() + mainhand.getItemSpecs().getSockets() + mainhand.getItemSpecs().getRarity();
-            if(Helpers.randomInt(0, (int) mainhand.getItemSpecs().getAttributePoints()) == 0)
+            LivingEntityDrops livingEntityDrops = new LivingEntityDrops(e.getEntity());
+
+            livingEntityDrops.addDrops(e.getDrops(), e.getDroppedExp());
+
+            livingEntityDrops.simulateDrops();
+
+            if(livingEntityDrops.isOverride())
             {
-                Durability durability = new Durability(mainhand.getItem());
-                int adjustment = Helpers.randomInt(0, durability.getDurability()) * -1;
-                durability.adjustDurability(adjustment);
-                drops.add(durability.getItem());
+                livingEntityDrops.drop();
+
+                e.setDroppedExp(0);
+
+                e.getDrops().clear();
             }
-        }
 
-
-        if (helmet.isSpecialItem() && helmet.isValid())
-        {
-            xp += helmet.getItemSpecs().getPower() + helmet.getItemSpecs().getSockets() + helmet.getItemSpecs().getRarity();
-            if(Helpers.randomInt(0, (int) helmet.getItemSpecs().getAttributePoints()) == 0)
-            {
-                Durability durability = new Durability(helmet.getItem());
-                int adjustment = Helpers.randomInt(0, durability.getDurability()) * -1;
-                durability.adjustDurability(adjustment);
-                drops.add(durability.getItem());
-            }
-        }
-
-
-        if(chestplate.isSpecialItem() && chestplate.isValid())
-        {
-            xp += chestplate.getItemSpecs().getPower() + chestplate.getItemSpecs().getSockets() + chestplate.getItemSpecs().getRarity();
-            if(Helpers.randomInt(0, (int) chestplate.getItemSpecs().getAttributePoints()) == 0)
-            {
-                Durability durability = new Durability(chestplate.getItem());
-                int adjustment = Helpers.randomInt(0, durability.getDurability()) * -1;
-                durability.adjustDurability(adjustment);
-                drops.add(durability.getItem());
-            }
-        }
-
-
-        if(leggings.isSpecialItem() && leggings.isValid())
-        {
-            xp += leggings.getItemSpecs().getPower() + leggings.getItemSpecs().getSockets() + leggings.getItemSpecs().getRarity();
-            if(Helpers.randomInt(0, (int) leggings.getItemSpecs().getAttributePoints()) == 0)
-            {
-                Durability durability = new Durability(leggings.getItem());
-                int adjustment = Helpers.randomInt(0, durability.getDurability()) * -1;
-                durability.adjustDurability(adjustment);
-                drops.add(durability.getItem());
-            }
-        }
-
-
-        if(boots.isSpecialItem() && boots.isValid())
-        {
-            xp += boots.getItemSpecs().getPower() + boots.getItemSpecs().getSockets() + boots.getItemSpecs().getRarity();
-            if(Helpers.randomInt(0, (int) boots.getItemSpecs().getAttributePoints()) == 0)
-            {
-                Durability durability = new Durability(boots.getItem());
-                int adjustment = Helpers.randomInt(0, durability.getDurability()) * -1;
-                durability.adjustDurability(adjustment);
-                drops.add(durability.getItem());
-            }
-        }
-
-        if(xp < 2)
-        {
-            xp = 1;
-        } else {
-            xp = Helpers.randomInt(xp / 2, xp);
-
-            xp = (int) Helpers.scale(xp, 1, max, 1, 100);
-        }
-
-        e.setDroppedExp(xp);
-
-        if(drops.size() > 0)
-        {
-            e.getDrops().clear();
-
-            e.getDrops().addAll(drops);
         }
 
     }

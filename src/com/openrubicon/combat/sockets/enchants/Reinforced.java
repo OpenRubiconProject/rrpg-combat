@@ -72,6 +72,7 @@ public class Reinforced extends CombatSocket {
 
     @Override
     public void onPrepareDefensePoints(PrepareDefensePointsEvent e, UniqueItem item, EntityInventorySlotType slot) {
-        e.setDefensePoints(e.getDefensePoints() + this.getArmor());
+        if(slot != EntityInventorySlotType.MAINHAND && slot != EntityInventorySlotType.OFFHAND)
+            e.setDefensePoints(e.getDefensePoints() + this.getArmor());
     }
 }

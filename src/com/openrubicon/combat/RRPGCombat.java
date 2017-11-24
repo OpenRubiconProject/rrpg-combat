@@ -1,9 +1,11 @@
 package com.openrubicon.combat;
 
 import com.openrubicon.combat.commands.CombatLog;
+import com.openrubicon.combat.commands.God;
 import com.openrubicon.combat.events.EventListener;
 import com.openrubicon.combat.scoreboard.ChallengeStatus;
 import com.openrubicon.combat.scoreboard.CombatChance;
+import com.openrubicon.combat.server.playerdata.GodMode;
 import com.openrubicon.combat.sockets.abilities.Challenge;
 import com.openrubicon.combat.sockets.effects.Evasion;
 import com.openrubicon.combat.sockets.effects.Jarvis;
@@ -45,12 +47,15 @@ public class RRPGCombat extends JavaPlugin implements Module {
     public ArrayList<Command> getCommands() {
         ArrayList<Command> commands = new ArrayList<>();
         commands.add(new CombatLog());
+        commands.add(new God());
         return commands;
     }
 
     @Override
     public ArrayList<PlayerData> getPlayerDatas() {
-        return new ArrayList<>();
+        ArrayList<PlayerData> playerDatas = new ArrayList<>();
+        playerDatas.add(new GodMode());
+        return playerDatas;
     }
 
     @Override

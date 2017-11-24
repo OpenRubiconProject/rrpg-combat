@@ -1,5 +1,6 @@
 package com.openrubicon.combat.scoreboard;
 
+import com.openrubicon.combat.classes.ItemCombatConstants;
 import com.openrubicon.combat.classes.attacks.BasicAttack;
 import com.openrubicon.core.api.attributes.AttributeModifiers;
 import com.openrubicon.core.api.attributes.enums.AttributeModifierType;
@@ -37,7 +38,9 @@ public class CombatChance implements ScoreboardSection{
             AttributeModifiers attackingAttributeModifiers = new AttributeModifiers();
             attackingAttributeModifiers.load(new NBT(myWeapon));
             if(attackingAttributeModifiers.getAttribute(AttributeModifierType.ATTACK_DAMAGE) == null)
-                attackingDamage = 1;
+            {
+                attackingDamage = ItemCombatConstants.getMaterialDefaultDamage(myWeapon);
+            }
             else
                 attackingDamage = attackingAttributeModifiers.getAttribute(AttributeModifierType.ATTACK_DAMAGE).getAmount();
         }

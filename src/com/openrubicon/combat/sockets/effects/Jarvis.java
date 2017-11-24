@@ -1,5 +1,6 @@
 package com.openrubicon.combat.sockets.effects;
 
+import com.openrubicon.combat.classes.ItemCombatConstants;
 import com.openrubicon.combat.classes.attacks.BasicAttack;
 import com.openrubicon.combat.sockets.CombatSocket;
 import com.openrubicon.core.api.actionbar.ActionBarManager;
@@ -58,7 +59,7 @@ public class Jarvis extends CombatSocket {
             AttributeModifiers attackingAttributeModifiers = new AttributeModifiers();
             attackingAttributeModifiers.load(new NBT(myWeapon));
             if(attackingAttributeModifiers.getAttribute(AttributeModifierType.ATTACK_DAMAGE) == null)
-                attackingDamage = 1;
+                attackingDamage = ItemCombatConstants.getMaterialDefaultDamage(myWeapon);
             else
                 attackingDamage = attackingAttributeModifiers.getAttribute(AttributeModifierType.ATTACK_DAMAGE).getAmount();
         }
@@ -69,7 +70,7 @@ public class Jarvis extends CombatSocket {
             AttributeModifiers defendingAttributeModifiers = new AttributeModifiers();
             defendingAttributeModifiers.load(new NBT(yourWeapon));
             if(defendingAttributeModifiers.getAttribute(AttributeModifierType.ATTACK_DAMAGE) == null)
-                defendingDamage = 1;
+                defendingDamage = ItemCombatConstants.getMaterialDefaultDamage(yourWeapon);
             else
                 defendingDamage = defendingAttributeModifiers.getAttribute(AttributeModifierType.ATTACK_DAMAGE).getAmount();
         }
