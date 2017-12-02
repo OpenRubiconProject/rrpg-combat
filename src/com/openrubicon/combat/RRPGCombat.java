@@ -15,6 +15,7 @@ import com.openrubicon.core.RRPGCore;
 import com.openrubicon.core.api.command.Command;
 import com.openrubicon.core.api.configuration.ConfigurationProperty;
 import com.openrubicon.core.api.scoreboard.ScoreboardSectionService;
+import com.openrubicon.core.api.scoreboard.interfaces.ScoreboardSection;
 import com.openrubicon.core.api.server.players.interfaces.PlayerData;
 import com.openrubicon.core.interfaces.Module;
 import com.openrubicon.items.classes.sockets.SocketProvider;
@@ -49,6 +50,14 @@ public class RRPGCombat extends JavaPlugin implements Module {
         commands.add(new CombatLog());
         commands.add(new God());
         return commands;
+    }
+
+    @Override
+    public ArrayList<ScoreboardSection> getScoreboardSections() {
+        ArrayList<ScoreboardSection> scoreboardSections = new ArrayList<>();
+        scoreboardSections.add(new CombatChance());
+        scoreboardSections.add(new ChallengeStatus());
+        return scoreboardSections;
     }
 
     @Override
@@ -88,9 +97,6 @@ public class RRPGCombat extends JavaPlugin implements Module {
         RRPGCore.services.getSerivce(SocketProvider.class).add(new Thickness());
         RRPGCore.services.getSerivce(SocketProvider.class).add(new Thornmail());
         getLogger().info("Sockets Injected.");
-
-        RRPGCore.services.getSerivce(ScoreboardSectionService.class).getScoreboardSections().add(new CombatChance());
-        RRPGCore.services.getSerivce(ScoreboardSectionService.class).getScoreboardSections().add(new ChallengeStatus());
     }
 
     @Override
@@ -99,11 +105,4 @@ public class RRPGCombat extends JavaPlugin implements Module {
 
     }
 
-    private void loadServices()
-    {
-        getLogger().info("Establishing Services..");
-
-
-        getLogger().info("Established Services.");
-    }
 }

@@ -80,7 +80,7 @@ public class LivingEntityDrops {
             // Increase this to make it less likely for mobs to drop.
             // Lower this number to make it more likely for items to drop.
             // Uses an exponential approach, so small changes will have large in game impacts
-            double dropFactor = 0.89;
+            double dropFactor = 0.90;
 
             this.simulateDrop(mainhand, dropFactor);
             this.simulateDrop(offhand, dropFactor);
